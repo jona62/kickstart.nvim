@@ -44,7 +44,13 @@ P.S. You can delete this when you're done too. It's your config now :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- [[ Install `lazy.nvim` plugin manager ]]
+-- Set Help panel height 
+vim.o.helpheight = vim.o.lines
+
+-- Remap terminal exit key-binding to Esc
+vim.api.nvim_exec([[tnoremap <Esc> <C-\><C-n>]], true)
+
+-- Install package manager
 --    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -236,8 +242,11 @@ require('lazy').setup({
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
+-- Set relative line number
+vim.wo.relativenumber = true
+
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.wo.number = true
@@ -312,6 +321,55 @@ require('telescope').setup {
     },
   },
 }
+
+-- Buffer settings
+vim.keymap.set('n', '<leader>bc', ':enew<cr>', { desc = 'Create New Buffer', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bd', ':bd!<cr>', { desc = 'Delete Current Buffer', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bl', ':ls<cr>', { desc = 'List All Buffers', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bn', ':bnext<cr>', { desc = 'Next Buffer', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bp', ':bprev<cr>', { desc = 'Previous Buffer', noremap = true, silent = true })
+
+vim.keymap.set('n', '<leader>noh', ':noh<cr>', { noremap = true, silent = true })
+
+-- Map <leader><Space>b to create a new buffer
+vim.keymap.set('n', '<leader>bb', function()
+   local input = vim.fn.input('New Buffer: ', '', 'customlist,expand')
+    if #input > 0 then
+        -- If user input is provided, try to open it as a file
+        vim.cmd('edit ' .. input)
+    else
+        -- If no input is provided, create an empty buffer
+        vim.cmd('enew')
+    end
+end, { noremap = true, silent = true, desc = 'Create A New Buffer with optional file or buffer-name' })
+
+-- vim.keymap.set('n', '<leader><Space>n', require('telescope.builtin').buffers, { desc = "Buffers" }) 
+
+-- Set scrolloff to a high value
+vim.o.scrolloff = 999
+
+-- Create an autocommand to trigger zz on CursorMoved
+vim.cmd([[autocmd CursorMoved * norm! zz]])
+
+-- Toggle modifiable and startinsert for terminals in normal mode
+vim.cmd([[
+  command! ToggleTerminalEdit call ToggleTerminalEdit()
+
+  function! ToggleTerminalEdit()
+    if &buftype ==# 'terminal'
+      if &modifiable
+        set nomodifiable
+        echo "Terminal edit: OFF"
+      else
+        set modifiable
+        startinsert
+        echo "Terminal edit: ON"
+      endif
+    else
+      echo "Not a terminal buffer"
+    endif
+  endfunction
+]])
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -489,6 +547,7 @@ end
 -- document existing key chains
 require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+  ['<leader>b'] = { name = '[B]uffer', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
