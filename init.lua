@@ -1,3 +1,4 @@
+-- Latest change
 -- set <space> as the leader key
 -- see `:help mapleader`
 --  note: must happen before plugins are required (otherwise wrong leader will be used)
